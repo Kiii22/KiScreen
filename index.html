@@ -1,145 +1,689 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>CryptoVerse Pro</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-:root{
---bg:#050508;--card:#0f0f16;--text:#e2e8f0;--dim:#94a3b8;
---primary:#3b82f6;--green:#10b981;--red:#ef4444;
-}
-.light{
---bg:#f8fafc;--card:#ffffff;--text:#020617;--dim:#475569;
-}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui}
-header{padding:1rem;border-bottom:1px solid #333;display:flex;justify-content:space-between}
-button{background:var(--card);color:var(--text);border:1px solid #333;padding:.5rem 1rem;cursor:pointer}
-.container{padding:1rem}
-.grid{display:grid;grid-template-columns:250px 1fr;gap:1rem}
-.asset{padding:.5rem;border-bottom:1px solid #333;cursor:pointer}
-.asset:hover{background:#222}
-.card{background:var(--card);padding:1rem;border-radius:10px}
-.up{color:var(--green)} .down{color:var(--red)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoVerse: Market & Education</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #3b82f6;
+            --green: #10b981;
+            --red: #ef4444;
+            --yellow: #f59e0b;
+            --text: #f1f5f9;
+            --dim: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        h1 { color: var(--primary); }
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .type-btn {
+            padding: 8px 16px;
+            background: var(--card);
+            border: 1px solid #334155;
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .type-btn.active {
+            background: var(--primary);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+        .asset-list {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .asset-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            cursor: pointer;
+        }
+        .asset-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .asset-info {
+            flex-grow: 1;
+            margin-left: 12px;
+        }
+        .asset-symbol {
+            font-weight: bold;
+            display: block;
+        }
+        .asset-change {
+            font-size: 0.9em;
+        }
+        .up { color: var(--green); }
+        .down { color: var(--red); }
+        .main-panel {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .coin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .coin-price {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+        .tab {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: var(--dim);
+            cursor: pointer;
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .indicator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .indicator-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .indicator-label {
+            font-size: 0.9em;
+            color: var(--dim);
+        }
+        .indicator-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .overbought { color: var(--red); }
+        .oversold { color: var(--green); }
+        .neutral { color: var(--yellow); }
+        .history-timeline {
+            margin-top: 20px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .history-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: var(--primary);
+        }
+        .history-event {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .history-event::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        .history-year {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .history-desc {
+            color: var(--dim);
+            margin-top: 5px;
+        }
+        .fun-fact {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--yellow);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        canvas {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
-
 <body>
-<header>
-<strong>🚀 CryptoVerse Pro</strong>
-<div>
-<button onclick="toggleMode()">🌗 Mode</button>
-<button onclick="switchType('crypto')">Crypto</button>
-<button onclick="switchType('etf')">ETF</button>
-</div>
-</header>
+    <div class="container">
+        <header>
+            <h1>🚀 CryptoVerse</h1>
+            <div>Analisis Pasar & Pendidikan Crypto</div>
+        </header>
 
-<div class="container grid">
-<div class="card" id="list"></div>
+        <div class="type-selector">
+            <button class="type-btn active" onclick="switchType('crypto')">Cryptocurrency</button>
+            <button class="type-btn" onclick="switchType('metal')">Logam Mulia</button>
+            <button class="type-btn" onclick="switchType('etf')">ETF Crypto</button>
+        </div>
 
-<div class="card">
-<h2 id="title">Bitcoin</h2>
-<h1 id="price">$0</h1>
-<canvas id="chart" height="120"></canvas>
+        <div class="grid">
+            <!-- Daftar Aset -->
+            <div class="asset-list" id="assetList">
+                <!-- Diisi oleh JavaScript -->
+            </div>
 
-<h3>Teknikal</h3>
-<p>RSI: <strong id="rsi">--</strong></p>
-<p>EMA 20: <strong id="ema20">--</strong></p>
-<p>EMA 50: <strong id="ema50">--</strong></p>
-</div>
-</div>
+            <!-- Panel Utama -->
+            <div class="main-panel">
+                <div class="coin-header">
+                    <div>
+                        <h2 id="coinName">Bitcoin</h2>
+                        <div class="coin-price" id="coinPrice">$0.00</div>
+                        <div id="coinChange" class="up">+0.00%</div>
+                    </div>
+                    <div id="coinSymbol">BTC</div>
+                </div>
 
-<script>
-const API="https://api.coingecko.com/api/v3";
-const CRYPTO=["bitcoin","ethereum","solana"];
-const ETF={
-spy:{name:"SPY",price:520},
-ibit:{name:"IBIT",price:40}
-};
+                <canvas id="priceChart"></canvas>
 
-let type="crypto",chart;
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('technical')">Analisis Teknikal</button>
+                    <button class="tab" onclick="switchTab('history')">Sejarah & Fakta</button>
+                    <button class="tab" onclick="switchTab('volume')">Volume & Data</button>
+                </div>
 
-function toggleMode(){document.body.classList.toggle("light")}
+                <!-- Tab Analisis Teknikal -->
+                <div id="technicalTab" class="tab-content active">
+                    <h3>Indikator Teknikal</h3>
+                    <div class="indicator-grid">
+                        <div class="indicator-card">
+                            <div class="indicator-label">RSI (14)</div>
+                            <div class="indicator-value" id="rsiValue">50.0</div>
+                            <div id="rsiSignal" class="neutral">Netral</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-label">EMA 13 Minggu</div>
+                            <div class="indicator-value" id="ema13">$0.00</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-label">EMA 21 Minggu</div>
+                            <div class="indicator-value" id="ema21">$0.00</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-label">EMA 50 Minggu</div>
+                            <div class="indicator-value" id="ema50">$0.00</div>
+                        </div>
+                    </div>
+                    <div class="fun-fact" id="techFact">
+                        RSI di atas 70 menunjukkan overbought, di bawah 30 oversold. EMA menunjukkan tren jangka menengah-panjang.
+                    </div>
+                </div>
 
-function switchType(t){type=t;loadList()}
+                <!-- Tab Sejarah -->
+                <div id="historyTab" class="tab-content">
+                    <h3>Sejarah & Fakta Unik</h3>
+                    <div class="history-timeline" id="historyTimeline">
+                        <!-- Diisi oleh JavaScript -->
+                    </div>
+                    <div class="fun-fact" id="funFact">
+                        Fakta menarik akan muncul di sini...
+                    </div>
+                </div>
 
-async function loadList(){
-const el=document.getElementById("list");el.innerHTML="";
-if(type==="crypto"){
-const r=await fetch(`${API}/coins/markets?vs_currency=usd&ids=${CRYPTO.join(",")}`);
-const d=await r.json();
-d.forEach(c=>{
-const div=document.createElement("div");
-div.className="asset";
-div.innerText=c.name;
-div.onclick=()=>loadCrypto(c.id);
-el.appendChild(div);
-});
-}else{
-Object.keys(ETF).forEach(k=>{
-const div=document.createElement("div");
-div.className="asset";
-div.innerText=ETF[k].name;
-div.onclick=()=>loadETF(k);
-el.appendChild(div);
-});
-}
-}
+                <!-- Tab Volume -->
+                <div id="volumeTab" class="tab-content">
+                    <h3>Volume & Data Pasar</h3>
+                    <div class="indicator-grid">
+                        <div class="indicator-card">
+                            <div class="indicator-label">Volume 24h</div>
+                            <div class="indicator-value" id="volume24h">$0.00</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-label">Market Cap</div>
+                            <div class="indicator-value" id="marketCap">$0.00</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-label">ATH</div>
+                            <div class="indicator-value" id="ath">$0.00</div>
+                        </div>
+                        <div class="indicator-card">
+                            <div class="indicator-label">Supply</div>
+                            <div class="indicator-value" id="supply">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-async function loadCrypto(id){
-const r=await fetch(`${API}/coins/${id}/market_chart?vs_currency=usd&days=30`);
-const d=await r.json();
-drawChart(d.prices.map(p=>p[1]));
-calcIndicators(d.prices.map(p=>p[1]));
-document.getElementById("title").innerText=id.toUpperCase();
-document.getElementById("price").innerText="$"+d.prices.at(-1)[1].toFixed(2);
-}
+    <script>
+        // Database komprehensif
+        const ASSET_DB = {
+            // Cryptocurrency
+            bitcoin: {
+                name: "Bitcoin",
+                symbol: "BTC",
+                price: 65432.10,
+                change: 2.5,
+                history: [
+                    { year: "2008", desc: "Satoshi Nakamoto menerbitkan whitepaper Bitcoin" },
+                    { year: "2010", desc: "Pizza Day: 10,000 BTC untuk 2 pizza (nilai $650 juta kini)" },
+                    { year: "2017", desc: "Harga capai $20,000 untuk pertama kalinya" },
+                    { year: "2021", desc: "Capai ATH $69,000" },
+                    { year: "2024", desc: "ETF Bitcoin disetujui SEC" }
+                ],
+                funFact: "Satoshi Nakamoto identitasnya masih misteri. Jika kehilangan 1 juta BTC, tidak ada yang bisa mengembalikan.",
+                rsi: 62,
+                ema13: 62000,
+                ema21: 61500,
+                ema50: 58000,
+                volume: 28500000000,
+                marketCap: 1280000000000,
+                ath: 69000,
+                supply: 21000000
+            },
+            ethereum: {
+                name: "Ethereum",
+                symbol: "ETH",
+                price: 3456.78,
+                change: 1.8,
+                history: [
+                    { year: "2013", desc: "Vitalik Buterin mengusulkan Ethereum" },
+                    { year: "2015", desc: "Mainnet Ethereum diluncurkan" },
+                    { year: "2016", desc: "Hard fork setelah hack DAO" },
+                    { year: "2020", desc: "Ethereum 2.0 dimulai" },
+                    { year: "2022", desc: "The Merge: Beralih ke Proof-of-Stake" }
+                ],
+                funFact: "Vitalik Buterin menciptakan Ethereum saat berusia 19 tahun. Smart contract pertama untuk ICO.",
+                rsi: 58,
+                ema13: 3400,
+                ema21: 3350,
+                ema50: 3200,
+                volume: 14500000000,
+                marketCap: 415000000000,
+                ath: 4878,
+                supply: 120000000
+            },
+            solana: {
+                name: "Solana",
+                symbol: "SOL",
+                price: 145.67,
+                change: 5.2,
+                history: [
+                    { year: "2017", desc: "Anatoly Yakovenko memulai Solana" },
+                    { year: "2020", desc: "Mainnet diluncurkan" },
+                    { year: "2021", desc: "Meledak 100x dalam setahun" },
+                    { year: "2022", desc: "Terpengaruh krisis FTX" },
+                    { year: "2024", desc: "Bangkit kembali dengan memecoin" }
+                ],
+                funFact: "Solana bisa proses 65,000 transaksi/detik vs Bitcoin 7 transaksi/detik. Nama dari pantai di California.",
+                rsi: 68,
+                ema13: 140,
+                ema21: 135,
+                ema50: 120,
+                volume: 3800000000,
+                marketCap: 64000000000,
+                ath: 260,
+                supply: 579000000
+            },
+            
+            // Logam Mulia Digital
+            xaut: {
+                name: "Tether Gold",
+                symbol: "XAUT",
+                price: 2345.67,
+                change: 0.3,
+                history: [
+                    { year: "2020", desc: "Diluncurkan oleh Tether" },
+                    { year: "2021", desc: "Diadopsi sebagai hedge inflasi" },
+                    { year: "2023", desc: "Capai volume harian $50 juta" }
+                ],
+                funFact: "Setiap XAUT didukung 1 ons troy emas fisik di Swiss. Bisa ditebus emas fisik.",
+                rsi: 45,
+                ema13: 2330,
+                ema21: 2320,
+                ema50: 2300,
+                volume: 50000000,
+                marketCap: 580000000,
+                ath: 2500,
+                supply: 246000
+            },
+            paxg: {
+                name: "Paxos Gold",
+                symbol: "PAXG",
+                price: 2340.12,
+                change: 0.4,
+                history: [
+                    { year: "2019", desc: "Diluncurkan oleh Paxos" },
+                    { year: "2020", desc: "Terdaftar di bursa besar" },
+                    { year: "2022", desc: "Capai $1 miliar market cap" }
+                ],
+                funFact: "Disimpan di Brink's London. Bisa ditebus emas batangan 400 ons di London atau Zurich.",
+                rsi: 48,
+                ema13: 2325,
+                ema21: 2318,
+                ema50: 2305,
+                volume: 45000000,
+                marketCap: 550000000,
+                ath: 2490,
+                supply: 235000
+            },
+            xag: {
+                name: "Silver Token",
+                symbol: "XAG",
+                price: 28.45,
+                change: 1.2,
+                history: [
+                    { year: "2021", desc: "Token perak pertama di blockchain" },
+                    { year: "2022", desc: "Partner dengan perusahaan tambang" },
+                    { year: "2023", desc: "Ekspansi ke Asia" }
+                ],
+                funFact: "Didukung perak fisik 99.9% murni. Lebih volatile daripada emas tetapi potensi gain lebih tinggi.",
+                rsi: 52,
+                ema13: 28.2,
+                ema21: 28.0,
+                ema50: 27.5,
+                volume: 2500000,
+                marketCap: 85000000,
+                ath: 32.5,
+                supply: 3000000
+            },
+            
+            // ETF Crypto
+            ibit: {
+                name: "iShares Bitcoin Trust",
+                symbol: "IBIT",
+                price: 42.34,
+                change: 2.1,
+                history: [
+                    { year: "2024", desc: "ETF Bitcoin pertama BlackRock" },
+                    { year: "2024", desc: "Capai $10 miliar AUM dalam 2 bulan" },
+                    { year: "2024", desc: "Tercepat capai $10 miliar dalam sejarah ETF" }
+                ],
+                funFact: "BlackRock adalah manajer aset terbesar dunia dengan $10 triliun AUM. IBIT beli 10,000+ BTC/bulan.",
+                rsi: 60,
+                ema13: 41.5,
+                ema21: 41.0,
+                ema50: 40.0,
+                volume: 450000000,
+                marketCap: 18000000000,
+                ath: 43.5,
+                supply: 425000000
+            },
+            fbtc: {
+                name: "Fidelity Bitcoin ETF",
+                symbol: "FBTC",
+                price: 62.89,
+                change: 1.9,
+                history: [
+                    { year: "2024", desc: "Diluncurkan oleh Fidelity" },
+                    { year: "2024", desc: "Capai $5 miliar dalam 3 bulan" },
+                    { year: "2024", desc: "Biaya terendah 0.25%" }
+                ],
+                funFact: "Fidelity mengelola $4.5 triliun. Melayani 43 juta investor. Sudah mining Bitcoin sejak 2014.",
+                rsi: 58,
+                ema13: 61.5,
+                ema21: 61.0,
+                ema50: 60.0,
+                volume: 380000000,
+                marketCap: 9500000000,
+                ath: 64.2,
+                supply: 151000000
+            },
+            bitb: {
+                name: "Bitwise Bitcoin ETF",
+                symbol: "BITB",
+                price: 28.76,
+                change: 2.3,
+                history: [
+                    { year: "2024", desc: "ETF Bitcoin Bitwise" },
+                    { year: "2024", desc: "Transparansi 100% alamat wallet" },
+                    { year: "2024", desc: "Fokus investor retail" }
+                ],
+                funFact: "Bitwise adalah perusahaan crypto asset manager pertama. CEO Hunter Horsley masih usia 30-an.",
+                rsi: 62,
+                ema13: 28.0,
+                ema21: 27.8,
+                ema50: 27.0,
+                volume: 120000000,
+                marketCap: 2200000000,
+                ath: 29.5,
+                supply: 76500000
+            }
+        };
 
-function loadETF(id){
-let p=ETF[id].price,prices=[];
-for(let i=0;i<30;i++){p*=1+(Math.random()-.48)*.02;prices.push(p)}
-drawChart(prices);
-document.getElementById("title").innerText=ETF[id].name;
-document.getElementById("price").innerText="$"+p.toFixed(2);
-document.getElementById("rsi").innerText="N/A";
-document.getElementById("ema20").innerText="N/A";
-document.getElementById("ema50").innerText="N/A";
-}
+        const ASSET_LISTS = {
+            crypto: ['bitcoin', 'ethereum', 'solana'],
+            metal: ['xaut', 'paxg', 'xag'],
+            etf: ['ibit', 'fbtc', 'bitb']
+        };
 
-function drawChart(data){
-if(chart)chart.destroy();
-chart=new Chart(document.getElementById("chart"),{
-type:"line",
-data:{labels:data.map((_,i)=>i),datasets:[{data,borderWidth:2,tension:.4}]},
-options:{plugins:{legend:{display:false}},scales:{x:{display:false}}}
-});
-}
+        let currentType = 'crypto';
+        let currentAsset = 'bitcoin';
+        let chart = null;
 
-function EMA(data,period){
-const k=2/(period+1);let ema=data[0];
-data.forEach(v=>ema=v*k+ema*(1-k));
-return ema;
-}
+        // Fungsi untuk memuat daftar aset
+        function loadAssetList() {
+            const listEl = document.getElementById('assetList');
+            listEl.innerHTML = '';
+            
+            ASSET_LISTS[currentType].forEach(assetId => {
+                const asset = ASSET_DB[assetId];
+                const div = document.createElement('div');
+                div.className = 'asset-item';
+                div.onclick = () => selectAsset(assetId);
+                div.innerHTML = `
+                    <div>${getEmoji(assetId)}</div>
+                    <div class="asset-info">
+                        <span class="asset-symbol">${asset.symbol}</span>
+                        <span>${asset.name}</span>
+                    </div>
+                    <div>
+                        <div>$${asset.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                        <div class="asset-change ${asset.change >= 0 ? 'up' : 'down'}">
+                            ${asset.change >= 0 ? '+' : ''}${asset.change.toFixed(2)}%
+                        </div>
+                    </div>
+                `;
+                listEl.appendChild(div);
+            });
+        }
 
-function RSI(data,period=14){
-let gains=0,losses=0;
-for(let i=1;i<=period;i++){
-let diff=data[i]-data[i-1];
-if(diff>=0)gains+=diff;else losses-=diff;
-}
-let rs=gains/losses;
-return (100-(100/(1+rs))).toFixed(2);
-}
+        // Fungsi untuk memilih aset
+        function selectAsset(assetId) {
+            currentAsset = assetId;
+            updateDashboard();
+        }
 
-function calcIndicators(data){
-document.getElementById("ema20").innerText=EMA(data.slice(-20),20).toFixed(2);
-document.getElementById("ema50").innerText=EMA(data.slice(-50),50).toFixed(2);
-document.getElementById("rsi").innerText=RSI(data);
-}
+        // Fungsi untuk memperbarui dashboard
+        function updateDashboard() {
+            const asset = ASSET_DB[currentAsset];
+            
+            // Update header
+            document.getElementById('coinName').textContent = asset.name;
+            document.getElementById('coinSymbol').textContent = asset.symbol;
+            document.getElementById('coinPrice').textContent = `$${asset.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('coinChange').textContent = `${asset.change >= 0 ? '+' : ''}${asset.change.toFixed(2)}%`;
+            document.getElementById('coinChange').className = asset.change >= 0 ? 'up' : 'down';
+            
+            // Update indikator teknikal
+            document.getElementById('rsiValue').textContent = asset.rsi.toFixed(1);
+            const rsiSignal = document.getElementById('rsiSignal');
+            if (asset.rsi > 70) {
+                rsiSignal.textContent = 'OVERSOLD';
+                rsiSignal.className = 'overbought';
+            } else if (asset.rsi < 30) {
+                rsiSignal.textContent = 'OVERSOLD';
+                rsiSignal.className = 'oversold';
+            } else {
+                rsiSignal.textContent = 'NETRAL';
+                rsiSignal.className = 'neutral';
+            }
+            
+            document.getElementById('ema13').textContent = `$${asset.ema13.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('ema21').textContent = `$${asset.ema21.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('ema50').textContent = `$${asset.ema50.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            // Update volume & data
+            document.getElementById('volume24h').textContent = `$${(asset.volume / 1000000).toFixed(1)}M`;
+            document.getElementById('marketCap').textContent = `$${(asset.marketCap / 1000000000).toFixed(1)}B`;
+            document.getElementById('ath').textContent = `$${asset.ath.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('supply').textContent = asset.supply.toLocaleString();
+            
+            // Update sejarah
+            const historyEl = document.getElementById('historyTimeline');
+            historyEl.innerHTML = asset.history.map(event => `
+                <div class="history-event">
+                    <div class="history-year">${event.year}</div>
+                    <div class="history-desc">${event.desc}</div>
+                </div>
+            `).join('');
+            
+            // Update fakta unik
+            document.getElementById('funFact').textContent = asset.funFact;
+            
+            // Update chart
+            updateChart();
+        }
 
-loadList();loadCrypto("bitcoin");
-</script>
+        // Fungsi untuk update chart
+        function updateChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            const asset = ASSET_DB[currentAsset];
+            
+            // Generate data acak untuk demo
+            const data = [];
+            let value = asset.price;
+            for (let i = 0; i < 30; i++) {
+                value *= (1 + (Math.random() - 0.5) * 0.1);
+                data.push(value);
+            }
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
+                    datasets: [{
+                        label: 'Harga',
+                        data: data,
+                        borderColor: asset.change >= 0 ? '#10b981' : '#ef4444',
+                        backgroundColor: asset.change >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fungsi untuk switch tipe aset
+        function switchType(type) {
+            currentType = type;
+            currentAsset = ASSET_LISTS[type][0];
+            
+            // Update tombol aktif
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            loadAssetList();
+            updateDashboard();
+        }
+
+        // Fungsi untuk switch tab
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+
+        // Helper untuk emoji
+        function getEmoji(assetId) {
+            const emojiMap = {
+                bitcoin: '₿',
+                ethereum: 'Ξ',
+                solana: '◎',
+                xaut: '🥇',
+                paxg: '🏅',
+                xag: '🥈',
+                ibit: '📊',
+                fbtc: '🏦',
+                bitb: '📈'
+            };
+            return emojiMap[assetId] || '💰';
+        }
+
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAssetList();
+            updateDashboard();
+        });
+    </script>
 </body>
 </html>
